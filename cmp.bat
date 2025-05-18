@@ -1,0 +1,1 @@
+g++ src/compiler.cpp -o z++
