@@ -1,1 +1,1 @@
-g++ compiler.cpp -o z++compiler.cpp
+g++ compiler.cpp -o z++.exe
