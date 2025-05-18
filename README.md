@@ -50,11 +50,10 @@ Z++ 是一个实验性的编程语言，旨在支持中文编写。该项目的�
 1. 安装了 C++ 编译器。（不开发时不是必要）
 2. 把`bin`目录添加到PATH中
 ```
-set PATH=%PATH%;C:\Users\Administrator\Desktop\zpp\bin
+set PATH=%PATH%;/path/to/bin
 ```
-这只是示例，实际路径可能会有所不同。
-3.在CMD中输入`z++ -v`，如果输出了版本号，则说明安装成功。
-4.在CMD中输入`z++ <ZPP文件路径>（比如z++ <exp/main.zpp>）`，即可运行。
+3. 在CMD中输入`z++ -v`，如果输出了版本号，则说明安装成功。
+4. 在CMD中输入`z++ <ZPP文件路径>（比如z++ <exp/main.zpp>）`，即可运行。
 
 ## 贡献
 
