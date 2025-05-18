@@ -18,7 +18,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up g++ ${{ matrix.gcc }}
-        run: choco install mingw --version ${{ matrix.gcc }} -y
+        run: |
+          $maxRetries = 3
+          $retryCount = 0
+          while ($retryCount -lt $maxRetries) {
+            try {
+              choco install mingw --version ${{ matrix.gcc }} -y
+              break
+            } catch {
+              $retryCount++
+              if ($retryCount -eq $maxRetries) {
+                Write-Host "安装mingw失败，已达到最大重试次数"
+                exit 1
+              }
+              Write-Host "安装失败，重试中... ($retryCount/$maxRetries)"
+              Start-Sleep -Seconds 5
+            }
+          }
       - uses: actions/checkout@v3
       - name: Set up g++
         run: choco install mingw -y
