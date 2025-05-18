@@ -67,7 +67,18 @@ int main(int argc, char *argv[]) {
         std::cerr << "选项:" << std::endl;
         std::cerr << "  -h, --help    显示帮助信息" << std::endl;
         std::cerr << "  -v, --version 显示版本信息" << std::endl;
+        std::cerr << "  -l, --license 显示许可证信息" << std::endl;
+        std::cerr << "  -a, --author  显示作者信息" << std::endl;
         return 1;
+    }
+    if (argc == 2 && (std::string(argv[1]) == "-l" || std::string(argv[1]) == "--license")) {
+        std::cerr << "MIT License" << std::endl;
+        std::cerr << "Copyright (c) Eternity-Sky" << std::endl;
+        return 0;
+    }
+    if (argc == 2 && (std::string(argv[1]) == "-a" || std::string(argv[1]) == "--author")) {
+        std::cerr << "作者: Eternity-Sky" << std::endl;
+        return 0;
     }
     
     if (argc == 2 && (std::string(argv[1]) == "-v" || std::string(argv[1]) == "--version")) {
