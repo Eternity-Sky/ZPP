@@ -1,0 +1,30 @@
+{
+  "name": "zpp-language-support",
+  "displayName": "Z++ Language Support",
+  "description": "Provides syntax highlighting and snippets for Z++ language",
+  "version": "0.0.1",
+  "publisher": "zpp",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "zpp",
+      "aliases": ["Z++", "zpp"],
+      "extensions": [".zpp"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "zpp",
+      "scopeName": "source.zpp",
+      "path": "./syntaxes/zpp.tmLanguage.json"
+    }],
+    "snippets": [{
+      "language": "zpp",
+      "path": "./snippets/snippets.json"
+    }]
+  }
+}

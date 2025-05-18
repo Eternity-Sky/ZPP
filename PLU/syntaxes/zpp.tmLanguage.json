@@ -1,0 +1,27 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Z++",
+  "scopeName": "source.zpp",
+  "patterns": [
+    {
+      "match": "\\b(如果|否则|当|做|结束|函数|返回|变量|打印)\\b",
+      "name": "keyword.control.zpp"
+    },
+    {
+      "match": "\\b(最大值|最小值|平均值)\\b",
+      "name": "support.function.zpp"
+    },
+    {
+      "match": "\\b(\\d+)\\b",
+      "name": "constant.numeric.zpp"
+    },
+    {
+      "match": "\"[^\"]*\"",
+      "name": "string.quoted.double.zpp"
+    },
+    {
+      "match": "//.*$",
+      "name": "comment.line.zpp"
+    }
+  ]
+}
