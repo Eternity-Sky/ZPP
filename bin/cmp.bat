@@ -1,1 +1,1 @@
-g++ compiler.cpp -o z++.exe
+g++ bin\compiler.cpp -o bin\z++.exe
