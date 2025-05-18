@@ -1,1 +1,1 @@
-g++ src/compiler.cpp -o z++
+g++ compiler.cpp -o z++compiler.cpp
