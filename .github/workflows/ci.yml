@@ -23,7 +23,7 @@ jobs:
           $retryCount = 0
           while ($retryCount -lt $maxRetries) {
             try {
-              choco install mingw --version ${{ matrix.gcc }} -y
+              choco install mingw --version ${{ matrix.gcc }} -y --no-progress --ignore-checksums
               break
             } catch {
               $retryCount++
@@ -34,6 +34,10 @@ jobs:
               Write-Host "安装失败，重试中... ($retryCount/$maxRetries)"
               Start-Sleep -Seconds 5
             }
+          }
+          if (!(Get-Command g++ -ErrorAction SilentlyContinue)) {
+            Write-Host "g++ 未正确安装，请检查环境配置"
+            exit 1
           }
       - uses: actions/checkout@v3
       - name: Set up g++
