@@ -72,6 +72,13 @@ int main(int argc, char *argv[]) {
     
     if (argc == 2 && (std::string(argv[1]) == "-v" || std::string(argv[1]) == "--version")) {
         std::cerr << "Z++ 编译器 版本 0.1.0" << std::endl;
+    std::cerr << "Copyright © Eternity-Sky" << std::endl;
+    std::cerr << "EEEEE TTTTT" << std::endl;
+    std::cerr << "E       T" << std::endl;
+    std::cerr << "EEE     T" << std::endl;
+    std::cerr << "E       T" << std::endl;
+    std::cerr << "EEEEE   T" << std::endl;
+    std::cerr << "欢迎访问ETOJ.XYZ-OJ系统" << std::endl;
         return 0;
     }
 
