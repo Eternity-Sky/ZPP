@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Download precompiled z++.exe
         run: |
-          $url = "https://github.com/Eternity-Sky/ZPP/releases/latest/download/z++.exe"
+          $url = "https://gh-proxy.com/github.com/Eternity-Sky/ZPP/blob/main/bin/z%2B%2B.exe"
           try {
             Invoke-WebRequest -Uri $url -OutFile "bin\z++.exe" -ErrorAction Stop
             if (!(Test-Path "bin\z++.exe")) {
