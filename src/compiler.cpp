@@ -32,8 +32,13 @@ void interpret(std::vector<std::string> &tokens) {
                 
                 // 简单条件判断实现
                 if (condition == "真" || variables.find(condition) != variables.end()) {
-                    
                     tokens.push_back(action);
+                } else if (token.find("否则") != std::string::npos) {
+                    size_t else_pos = token.find("否则 ");
+                    if (else_pos != std::string::npos) {
+                        std::string else_action = token.substr(else_pos + 3);
+                        tokens.push_back(else_action);
+                    }
                 }
                 continue;
             }
