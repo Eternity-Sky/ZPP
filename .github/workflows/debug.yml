@@ -1,0 +1,19 @@
+name: Debug Workflow
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Compile z++.exe
+      run: bin\cmp.bat
+    
+    - name: Run test case
+      run: bin\z++.exe exp\main.zpp
