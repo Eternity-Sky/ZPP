@@ -1,4 +1,4 @@
-.ymlGit Auto Commit            - name: Git自动提交新的编译器
+            - name: Git Auto Commit
   # You may pin to the exact commit or the version.
   # uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403
   uses: stefanzweifel/git-auto-commit-action@v5.2.0
