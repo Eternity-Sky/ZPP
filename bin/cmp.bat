@@ -1,23 +1,23 @@
 @echo off
 
-echo æ­£åœ¨ç¼–è¯‘Z++ç¼–è¯‘å™¨...
+echo ÕýÔÚ±àÒëZ++±àÒëÆ÷...
 
 if not exist "%~dp0compiler.cpp" (
-    echo é”™è¯¯: æ‰¾ä¸åˆ°ç¼–è¯‘å™¨æºæ–‡ä»¶ %~dp0compiler.cpp
+    echo ´íÎó: ÕÒ²»µ½±àÒëÆ÷Ô´ÎÄ¼þ %~dp0compiler.cpp
     exit /b 1
 )
 
 g++ "%~dp0compiler.cpp" -o "%~dp0z++.exe"
 
 if %errorlevel% neq 0 (
-    echo ç¼–è¯‘å¤±è´¥ï¼Œé”™è¯¯ä»£ç : %errorlevel%
-    echo è¯·æ£€æŸ¥:
-    echo 1. æ˜¯å¦å®‰è£…äº†g++ç¼–è¯‘å™¨
-    echo 2. ç¼–è¯‘å™¨æºæ–‡ä»¶æ˜¯å¦å­˜åœ¨
-    echo 3. æ˜¯å¦æœ‰è¶³å¤Ÿçš„æƒé™
+    echo ±àÒëÊ§°Ü£¬´íÎó´úÂë: %errorlevel%
+    echo Çë¼ì²é:
+    echo 1. ÊÇ·ñ°²×°ÁËg++±àÒëÆ÷
+    echo 2. ±àÒëÆ÷Ô´ÎÄ¼þÊÇ·ñ´æÔÚ
+    echo 3. ÊÇ·ñÓÐ×ã¹»µÄÈ¨ÏÞ
     exit /b %errorlevel%
 ) else (
-    echo ç¼–è¯‘æˆåŠŸï¼Œç”Ÿæˆæ–‡ä»¶: %~dp0z++.exe
-echo å®Œæ•´è·¯å¾„: %~dp0z++.exe
-echo å¯ä»¥ä½¿ç”¨ z++ å‘½ä»¤è¿è¡Œç¼–è¯‘å™¨
+    echo ±àÒë³É¹¦£¬Éú³ÉÎÄ¼þ: %~dp0z++.exe
+echo ÍêÕûÂ·¾¶: %~dp0z++.exe
+echo ¿ÉÒÔÊ¹ÓÃ z++ ÃüÁîÔËÐÐ±àÒëÆ÷
 )
