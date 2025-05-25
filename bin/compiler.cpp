@@ -6,11 +6,29 @@
 #include <string>
 #include <map>
 
+std::map<std::string, std::vector<std::string>> arrays;
+
 void interpret(std::vector<std::string> &tokens) {
     std::map<std::string, std::string> variables;
     
+    // 预处理: 去除注释
+    for (auto &token : tokens) {
+        size_t comment_pos = token.find("//");
+        if (comment_pos != std::string::npos) {
+            token = token.substr(0, comment_pos);
+        }
+    }
+    
     for (const auto &token : tokens) {
-        
+        // 处理函数定义
+        if (token.find("函数 ") == 0) {
+            size_t brace_pos = token.find("{");
+            if (brace_pos != std::string::npos) {
+                std::string func_name = token.substr(3, brace_pos - 3);
+                variables[func_name] = token.substr(brace_pos + 1);
+                continue;
+            }
+        }
         
         // 处理变量声明
         if (token.find("变量 ") == 0) {
@@ -54,6 +72,36 @@ void interpret(std::vector<std::string> &tokens) {
             } else {
                 std::cerr << "错误: 令牌中的字符串格式无效: " << token << std::endl;
             }
+        }
+        
+        // 处理数组声明
+        if (token.find("变量 ") == 0 && token.find("[") != std::string::npos) {
+            size_t eq_pos = token.find("=");
+            if (eq_pos != std::string::npos) {
+                std::string var_name = token.substr(3, eq_pos - 3);
+                std::string array_content = token.substr(eq_pos + 1);
+                
+                // 简单数组解析
+                std::vector<std::string> elements;
+                size_t start = array_content.find('"');
+                while (start != std::string::npos) {
+                    size_t end = array_content.find('"', start + 1);
+                    if (end != std::string::npos) {
+                        elements.push_back(array_content.substr(start + 1, end - start - 1));
+                        start = array_content.find('"', end + 1);
+                    } else {
+                        break;
+                    }
+                }
+                arrays[var_name] = elements;
+                continue;
+            }
+        }
+        
+        // 处理函数调用
+        if (variables.find(token) != variables.end()) {
+            tokens.push_back(variables[token]);
+            continue;
         }
     }
 }
