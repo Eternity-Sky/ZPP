@@ -12,20 +12,25 @@ void interpret(std::vector<std::string> &tokens) {
     std::map<std::string, std::string> variables;
     
     // 预处理: 去除注释
-    for (auto &token : tokens) {
-        size_t comment_pos = token.find("//");
-        if (comment_pos != std::string::npos) {
-            token = token.substr(0, comment_pos);
-        }
-    }
+    // for (auto &token : tokens) {
+    //     size_t comment_pos = token.find("//");
+    //     if (comment_pos != std::string::npos) {
+    //         token = token.substr(0, comment_pos);
+    //     }
+    // }
     
     for (const auto &token : tokens) {
         // 处理函数定义
         if (token.find("函数 ") == 0) {
-            size_t brace_pos = token.find("{");
-            if (brace_pos != std::string::npos) {
-                std::string func_name = token.substr(3, brace_pos - 3);
-                variables[func_name] = token.substr(brace_pos + 1);
+            size_t open_paren_pos = token.find('(');
+            size_t close_paren_pos = token.find(')');
+            size_t do_pos = token.find(" 做");
+            if (open_paren_pos != std::string::npos && close_paren_pos != std::string::npos && do_pos != std::string::npos) {
+                std::string func_name = token.substr(3, open_paren_pos - 3);
+                std::string params_str = token.substr(open_paren_pos + 1, close_paren_pos - open_paren_pos - 1);
+                std::string body_str = token.substr(do_pos + 3);
+                variables[func_name + "_params"] = params_str;
+                variables[func_name + "_body"] = body_str;
                 continue;
             }
         }
@@ -45,11 +50,60 @@ void interpret(std::vector<std::string> &tokens) {
         if (token.find("如果 ") == 0) {
             size_t then_pos = token.find(" 那么 ");
             if (then_pos != std::string::npos) {
-                std::string condition = token.substr(3, then_pos - 3);
+                std::string condition_str = token.substr(3, then_pos - 3);
                 std::string action = token.substr(then_pos + 4);
                 
+                bool condition_result = false;
                 // 简单条件判断实现
-                if (condition == "真" || variables.find(condition) != variables.end()) {
+                if (condition_str == "真") {
+                    condition_result = true;
+                } else if (variables.count(condition_str)) {
+                    condition_result = (variables[condition_str] == "真");
+                } else {
+                    // 尝试解析比较表达式
+                    size_t op_pos;
+                    std::string op;
+                    if ((op_pos = condition_str.find(" > ")) != std::string::npos) {
+                        op = ">";
+                    } else if ((op_pos = condition_str.find(" < ")) != std::string::npos) {
+                        op = "<";
+                    } else if ((op_pos = condition_str.find(" == ")) != std::string::npos) {
+                        op = "==";
+                    } else if ((op_pos = condition_str.find(" != ")) != std::string::npos) {
+                        op = "!=";
+                    } else if ((op_pos = condition_str.find(" >= ")) != std::string::npos) {
+                        op = ">=";
+                    } else if ((op_pos = condition_str.find(" <= ")) != std::string::npos) {
+                        op = "<=";
+                    }
+
+                    if (!op.empty()) {
+                        std::string left_str = condition_str.substr(0, op_pos);
+                        std::string right_str = condition_str.substr(op_pos + op.length());
+
+                        // 尝试将左右操作数转换为数字
+                        try {
+                            double left_val = std::stod(left_str);
+                            double right_val = std::stod(right_str);
+
+                            if (op == ">") condition_result = (left_val > right_val);
+                            else if (op == "<") condition_result = (left_val < right_val);
+                            else if (op == "==") condition_result = (left_val == right_val);
+                            else if (op == "!=") condition_result = (left_val != right_val);
+                            else if (op == ">=") condition_result = (left_val >= right_val);
+                            else if (op == "<=") condition_result = (left_val <= right_val);
+                        } catch (const std::invalid_argument& e) {
+                            // 如果不是数字，则按字符串比较
+                            if (op == "==") condition_result = (left_str == right_str);
+                            else if (op == "!=") condition_result = (left_str != right_str);
+                            else {
+                                std::cerr << "错误: 不支持的字符串比较操作符: " << op << std::endl;
+                            }
+                        }
+                    }
+                }
+
+                if (condition_result) {
                     tokens.push_back(action);
                 } else if (token.find("否则") != std::string::npos) {
                     size_t else_pos = token.find("否则 ");
@@ -62,12 +116,94 @@ void interpret(std::vector<std::string> &tokens) {
             }
         }
         
+        // 处理循环结构
+        if (token.find("当 ") == 0 && token.find(" 做") != std::string::npos) {
+            size_t do_pos = token.find(" 做");
+            std::string loop_condition_str = token.substr(3, do_pos - 3);
+            std::string loop_body_str = "";
+            size_t end_pos = token.find("结束");
+            if (end_pos != std::string::npos) {
+                loop_body_str = token.substr(do_pos + 3, end_pos - (do_pos + 3));
+            }
+
+            // 简单循环实现
+            while (true) {
+                bool condition_result = false;
+                if (loop_condition_str == "真") {
+                    condition_result = true;
+                } else if (variables.count(loop_condition_str)) {
+                    condition_result = (variables[loop_condition_str] == "真");
+                } else {
+                    // 尝试解析比较表达式
+                    size_t op_pos;
+                    std::string op;
+                    if ((op_pos = loop_condition_str.find(" > ")) != std::string::npos) {
+                        op = ">";
+                    } else if ((op_pos = loop_condition_str.find(" < ")) != std::string::npos) {
+                        op = "<";
+                    } else if ((op_pos = loop_condition_str.find(" == ")) != std::string::npos) {
+                        op = "==";
+                    } else if ((op_pos = loop_condition_str.find(" != ")) != std::string::npos) {
+                        op = "!=";
+                    } else if ((op_pos = loop_condition_str.find(" >= ")) != std::string::npos) {
+                        op = ">=";
+                    } else if ((op_pos = loop_condition_str.find(" <= ")) != std::string::npos) {
+                        op = "<=";
+                    }
+
+                    if (!op.empty()) {
+                        std::string left_str = loop_condition_str.substr(0, op_pos);
+                        std::string right_str = loop_condition_str.substr(op_pos + op.length());
+
+                        try {
+                            double left_val = std::stod(left_str);
+                            double right_val = std::stod(right_str);
+
+                            if (op == ">") condition_result = (left_val > right_val);
+                            else if (op == "<") condition_result = (left_val < right_val);
+                            else if (op == "==") condition_result = (left_val == right_val);
+                            else if (op == "!=") condition_result = (left_val != right_val);
+                            else if (op == ">=") condition_result = (left_val >= right_val);
+                            else if (op == "<=") condition_result = (left_val <= right_val);
+                        } catch (const std::invalid_argument& e) {
+                            if (op == "==") condition_result = (left_str == right_str);
+                            else if (op == "!=") condition_result = (left_str != right_str);
+                            else {
+                                std::cerr << "错误: 不支持的字符串比较操作符: " << op << std::endl;
+                            }
+                        }
+                    }
+                }
+
+                if (condition_result) {
+                    // 将循环体添加到tokens中进行解释
+                    std::vector<std::string> loop_body_tokens;
+                    // 简单的按行分割
+                    size_t prev_pos = 0;
+                    size_t newline_pos;
+                    while ((newline_pos = loop_body_str.find('\n', prev_pos)) != std::string::npos) {
+                        loop_body_tokens.push_back(loop_body_str.substr(prev_pos, newline_pos - prev_pos));
+                        prev_pos = newline_pos + 1;
+                    }
+                    loop_body_tokens.push_back(loop_body_str.substr(prev_pos));
+
+                    interpret(loop_body_tokens);
+                } else {
+                    break;
+                }
+            }
+            continue;
+        }
+        
         // 处理打印语句
         if (token.find("打印(") != std::string::npos) {
-            size_t start = token.find('"') + 1;
-            size_t end = token.rfind('"');
+            size_t start = token.find('(') + 1;
+            size_t end = token.rfind(')');
             if (start != std::string::npos && end != std::string::npos && start < end) {
                 std::string content = token.substr(start, end - start);
+                if (content.length() >= 2 && content.front() == '"' && content.back() == '"') {
+                    content = content.substr(1, content.length() - 2);
+                }
                 std::cout << "Output: " << content << std::endl;
             } else {
                 std::cerr << "错误: 令牌中的字符串格式无效: " << token << std::endl;
@@ -83,15 +219,29 @@ void interpret(std::vector<std::string> &tokens) {
                 
                 // 简单数组解析
                 std::vector<std::string> elements;
-                size_t start = array_content.find('"');
-                while (start != std::string::npos) {
-                    size_t end = array_content.find('"', start + 1);
-                    if (end != std::string::npos) {
-                        elements.push_back(array_content.substr(start + 1, end - start - 1));
-                        start = array_content.find('"', end + 1);
+                size_t current_pos = 0;
+                while (current_pos < array_content.length()) {
+                    size_t comma_pos = array_content.find(',', current_pos);
+                    std::string element_str;
+                    if (comma_pos == std::string::npos) {
+                        element_str = array_content.substr(current_pos);
                     } else {
+                        element_str = array_content.substr(current_pos, comma_pos - current_pos);
+                    }
+                    
+                    // 去除首尾空格
+                    size_t first = element_str.find_first_not_of(' ');
+                    size_t last = element_str.find_last_not_of(' ');
+                    if (std::string::npos == first) {
+                        elements.push_back("");
+                    } else {
+                        elements.push_back(element_str.substr(first, (last - first + 1)));
+                    }
+                    
+                    if (comma_pos == std::string::npos) {
                         break;
                     }
+                    current_pos = comma_pos + 1;
                 }
                 arrays[var_name] = elements;
                 continue;
@@ -99,10 +249,63 @@ void interpret(std::vector<std::string> &tokens) {
         }
         
         // 处理函数调用
-        if (variables.find(token) != variables.end()) {
-            tokens.push_back(variables[token]);
-            continue;
+        if (token.find("(") != std::string::npos && token.find(")") != std::string::npos) {
+            size_t open_paren_pos = token.find('(');
+            size_t close_paren_pos = token.find(')');
+            if (open_paren_pos != std::string::npos && close_paren_pos != std::string::npos && open_paren_pos < close_paren_pos) {
+                std::string func_name = token.substr(0, open_paren_pos);
+                std::string args_str = token.substr(open_paren_pos + 1, close_paren_pos - open_paren_pos - 1);
+
+                if (variables.count(func_name + "_body")) {
+                    std::string func_body = variables[func_name + "_body"];
+                    std::string func_params = variables[func_name + "_params"];
+
+                    // 简单的参数替换
+                    std::map<std::string, std::string> call_variables = variables;
+                    std::vector<std::string> param_names;
+                    size_t prev_pos = 0;
+                    size_t comma_pos;
+                    while ((comma_pos = func_params.find(',', prev_pos)) != std::string::npos) {
+                        param_names.push_back(func_params.substr(prev_pos, comma_pos - prev_pos));
+                        prev_pos = comma_pos + 1;
+                    }
+                    param_names.push_back(func_params.substr(prev_pos));
+
+                    std::vector<std::string> arg_values;
+                    prev_pos = 0;
+                    while ((comma_pos = args_str.find(',', prev_pos)) != std::string::npos) {
+                        arg_values.push_back(args_str.substr(prev_pos, comma_pos - prev_pos));
+                        prev_pos = comma_pos + 1;
+                    }
+                    arg_values.push_back(args_str.substr(prev_pos));
+
+                    for (size_t i = 0; i < param_names.size() && i < arg_values.size(); ++i) {
+                        call_variables[param_names[i]] = arg_values[i];
+                    }
+
+                    // 执行函数体
+                    std::vector<std::string> func_body_tokens;
+                    prev_pos = 0;
+                    size_t newline_pos;
+                    while ((newline_pos = func_body.find('\n', prev_pos)) != std::string::npos) {
+                        func_body_tokens.push_back(func_body.substr(prev_pos, newline_pos - prev_pos));
+                        prev_pos = newline_pos + 1;
+                    }
+                    func_body_tokens.push_back(func_body.substr(prev_pos));
+
+                    interpret(func_body_tokens);
+                } else {
+                    std::cerr << "错误: 未知函数: " << func_name << std::endl;
+                }
+                continue;
+            }
         }
+        
+        // 处理未识别的令牌
+        // if (variables.find(token) != variables.end()) {
+        //     tokens.push_back(variables[token]);
+        //     continue;
+        // }
     }
 }
 
@@ -150,6 +353,10 @@ int main(int argc, char *argv[]) {
     std::string line;
     std::vector<std::string> tokens;
     while (std::getline(file, line)) {
+        size_t comment_pos = line.find("//");
+        if (comment_pos != std::string::npos) {
+            line = line.substr(0, comment_pos);
+        }
         tokens.push_back(line);
     }
 
